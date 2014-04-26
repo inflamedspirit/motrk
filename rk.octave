@@ -1,0 +1,69 @@
+N = 1000
+lambda = 2;
+h = 0.05;
+
+# These same parameters are overdamed for gamma=0, but definitely not for gamma=3
+#  alpha = -2;
+#  beta  = -1;
+#  gamma =  3;
+#  omega =  1;
+
+
+function ydot = f(x,y,t)
+  alpha = -2;
+  beta  = -1;
+  gamma =  3;
+  omega =  1;
+  ydot = alpha*y + beta*x + gamma*cos(omega*t)*x;
+end
+
+function xdot = g(x,y,t)
+  xdot = y;
+end
+
+
+xs = 0*ones(N,1);
+ys = 0*ones(N,1);
+ts = 0*ones(N,1);
+
+x = 1;
+y = 0;
+t = 0;
+
+xs(1) = x;
+ys(1) = y;
+ts(1) = t;
+
+for i = 2:N
+
+yk1 = f(x,y,t);
+xk1 = g(x,y,t);
+
+yk2 = f( x + 0.5*xk1*h, y + 0.5*yk1*h, t + 0.5*h );
+xk2 = g( x + 0.5*xk1*h, y + 0.5*yk1*h, t + 0.5*h );
+
+yk3 = f( x + (0.5-(1/lambda))*xk1*h + (1/lambda)*xk2*h, y + (0.5-(1/lambda))*yk1*h +
+ (1/lambda)*yk2*h, t + 0.5*h);
+xk3 = g( x + (0.5-(1/lambda))*xk1*h + (1/lambda)*xk2*h, y + (0.5-(1/lambda))*yk1*h + (1/lambda)*yk2*h, t + 0.5*h);
+
+yk4 = f( x + (1-(lambda/2))*xk2*h + (lambda/2)*xk3*h, y + (1-(lambda/2))*yk2*h + (lambda/2)*yk3*h, t + h);
+xk4 = g( x + (1-(lambda/2))*xk2*h + (lambda/2)*xk3*h, y + (1-(lambda/2))*yk2*h + (lambda/2)*yk3*h, t + h);
+
+y = y + (1/6)*h*( yk1 + (4-lambda)*yk2 + (lambda)*yk3 + yk4 );
+x = x + (1/6)*h*( xk1 + (4-lambda)*xk2 + (lambda)*xk3 + xk4 );
+t = t + h;
+
+xs(i) = x;
+ys(i) = y;
+ts(i) = t;
+
+plot(ts(1:i),xs(1:i))
+#pause(0.01)
+
+#if(mod(i,300)==0)
+#if( yes_or_no("Stop?"))
+#  break;
+#end
+#end
+
+end
